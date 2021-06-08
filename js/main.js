@@ -100,11 +100,19 @@ const newPetForm = document.querySelector('#new-pet-form')
 const loadPets =()=> {Pet.index()
     .then(pets => {
         const petsContainer = document.querySelector('ul.pet-list');
+        
         petsContainer.innerHTML = pets.map(pet=>{
+            let availability = '';
+            if(pet.is_available === true){
+                availability = 'yes'
+            }else if(pet.is_available === false){
+                availability = 'no'
+            }
             return `
-            <li>
+            <li class="list-group-item">
             <a class="pet-link" data-id="${pet.id}" href="">
-            ${pet.id} - ${pet.name} | Available: ${pet.is_available}
+            ${pet.id} - ${pet.name} | Available: ${availability}
+            </li>
             `
             }).join('');
         })}
@@ -127,10 +135,23 @@ petsContainer.addEventListener('click', (event) => {
 function renderPetShow(id){
 Pet.show(id)
 .then(pet => {
+    
+    let default_image_url = "https://images.pexels.com/photos/3299905/pexels-photo-3299905.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260";
     const showPage = document.querySelector('.page#pet-show');
+    let availability_msg;
+    if(pet.is_available === true){
+        availability_msg = `Please contact ${pet.owner.name}, through ${pet.pet_type} Post`
+    }else if(pet.is_available === false){
+        availability_msg = "Sorry, this pet is not available to rent at this moment"
+    }
+  
+     
     showPage.innerHTML = 
     `<div class="card shadow p-3 m-3 bg-body rounded">
-        <img src="${pet.image_url}" class="card-img-top" alt="...">
+        
+        
+        <img class="card-img-top" src="${pet.image_url}" onerror="this.onerror=null;this.src='${default_image_url}';" />
+        
         <div class="card-body">
             
             <h3 class="card-title">${pet.name}</h3>
@@ -138,11 +159,12 @@ Pet.show(id)
             <p class="card-text d-inline fw-bold">Characteristics: <p class="card-text d-inline">${pet.description}</p></p>
         
             <p class="card-text">
-            <small class="text-muted">Availability: ${pet.is_available}</small></br>
+            <small class="text-muted">${availability_msg}</small></br>
          
             </p>
             <a class="btn btn-primary" data-target='pet-edit' data-id='${pet.id}' href="">Edit</a>
-            <a class="btn btn-primary" data-target='delete-pet' data-id='${pet.id}' href="">Delete</a>
+            <a class="btn btn-danger" data-target='delete-pet' data-id='${pet.id}' href="">Delete</a>
+            <a class="btn btn-dark" data-target='pets-index' data-id='${pet.id}' href="">Back</a>
         </div>
     </div>
     `
@@ -230,3 +252,5 @@ function navigateTo(id){
          navigateTo(page);
      } 
  });
+
+ 
